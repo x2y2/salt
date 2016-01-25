@@ -1,2 +1,3 @@
 include:
-    - nginx/install
+  - nginx/install
+  - nginx/config

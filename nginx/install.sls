@@ -38,19 +38,7 @@ nginx_install:
   cmd.run:
     - cwd: /tmp/nginx-1.8.0
     - names:
-      - ./configure --prefix=/tools/nginx --with-http_sub_module --with-zlib=../zlib-1.2.8 --with-pcre=../pcre-8.37 --with-openssl=../openssl-1.0.2d
+      - ./configure --prefix=/tools/nginx --with-http_stub_status_module --with-zlib=../zlib-1.2.8 --with-pcre=../pcre-8.37 --with-openssl=../openssl-1.0.2d
       - make
       - make install
-    - unless: test -d /tools/nginx
 
-nginx_bin:
-  cmd.run:
-    - names:
-      - ln -s /tools/nginx/sbin/nginx /sbin/nginx
-    - unless: ls /sbin/nginx
-
-nginx_conf:
-  cmd.run:
-    - names:
-      - ln -s /tools/nginx/conf/nginx.conf /etc/nginx.conf
-    - unless: ls /etc/nginx.conf
