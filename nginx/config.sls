@@ -19,24 +19,21 @@ nginx_own:
   file.managed:
     - name: /tools/nginx/{{ file }}
     - mode: 755
-    - target: /{{ file }}
-    - unless: ls /{{ file }}
-{% elif file == 'conf/nginx.conf' %}
-/tools/nginx/{{ file }}:
-  file.managed:
-    - name: /tools/nginx/{{ file }}
-    - source: salt://nginx/files/nginx.conf
-  cmd.run:
-    - names:
-      - ln -s /tools/nginx/{{ file }} /etc/nginx.conf
-    - unless: ls /etc/nginx.conf
 {% else %}
 /tools/nginx/{{ file }}:
   file.managed:
     - name: /tools/nginx/{{ file }}
-    - source: salt://nginx/files/status_vhosts.conf
+    - source: salt://nginx/files/{{ file.split('/')[1] }}
 {% endif %}
 {% endfor %}
+
+/etc/nginx.conf:
+  file.symlink:
+    - target: /tools/nginx/conf/nginx.conf
+
+/sbin/nginx:
+  file.symlink:
+    - target: /tools/nginx/sbin/nginx
 
 {% for dir in ['sites-enabled','ssl'] %}
 /tools/nginx/{{ dir }}:
