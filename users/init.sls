@@ -1,2 +1,3 @@
 include:
-    - users/changepasswd
+  - users.useradd
+  - users.changepasswd

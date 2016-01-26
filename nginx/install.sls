@@ -1,5 +1,5 @@
 include:
-    - users.useradd
+  - users.useradd
 
 {% for file in ['nginx-1.8.0.tar.gz','openssl-1.0.2d.tar.gz','pcre-8.37.tar.gz','zlib-1.2.8.tar'] %}
 transfer_{{ file }}:

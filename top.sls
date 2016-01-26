@@ -1,5 +1,6 @@
 base:
   '*':
+    - env
     - users
     - dirs
     - jdk

@@ -1,3 +1,3 @@
 include: 
-    - jetty.install
-    - jetty.config
+  - jetty.install
+  - jetty.config

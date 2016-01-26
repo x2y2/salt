@@ -1,2 +1,2 @@
 include:
-    - jdk/install
+    - jdk.install

@@ -1,5 +1,5 @@
 include:
-    - nginx.install
+  - nginx.install
 
 nginx_own:
   file.directory:

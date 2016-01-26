@@ -1,5 +1,5 @@
 include:
-    - users.useradd
+  - users.useradd
 
 jetty_home:
   file.recurse:
@@ -14,8 +14,8 @@ jetty_home:
       - user: bestpay
 
 jetty_bin:
-    file.managed:
-        - name: /tools/jetty/bin/jetty.sh
-        - mode: 755
-        - require:
-          - file: /tools/jetty
+  file.managed:
+      - name: /tools/jetty/bin/jetty.sh
+      - mode: 755
+      - require:
+        - file: /tools/jetty

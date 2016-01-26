@@ -1,3 +1,3 @@
 include:
-    - nginx.install
-    - nginx.config
+  - nginx.install
+  - nginx.config
