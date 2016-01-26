@@ -1,12 +1,5 @@
-nginx_user:
-  user.present:
-    - name: bestpay
-    - uid: 1024
-    - createhome: True
-    - gid_from_name: True
-    - shell: /bin/bash
-    - password: $1$PnMSDXN4$.wDJrjsTqVPBn2HHzvnEe0
-    - enforce_password: False
+include:
+    - users.useradd
 
 {% for file in ['nginx-1.8.0.tar.gz','openssl-1.0.2d.tar.gz','pcre-8.37.tar.gz','zlib-1.2.8.tar'] %}
 transfer_{{ file }}:
@@ -41,4 +34,5 @@ nginx_install:
       - ./configure --prefix=/tools/nginx --with-http_stub_status_module --with-zlib=../zlib-1.2.8 --with-pcre=../pcre-8.37 --with-openssl=../openssl-1.0.2d
       - make
       - make install
+    - unless: test -d /tools/nginx
 

@@ -1,3 +1,5 @@
+include:
+    - users.useradd
 /tools:
   file.directory:
     - user: bestpay
@@ -5,3 +7,5 @@
     - mode: 755
     - makedirs: True
     - unless: test -d /tools
+    - require:
+      - user: bestpay

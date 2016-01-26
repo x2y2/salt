@@ -1,3 +1,6 @@
+include:
+    - nginx.install
+
 nginx_own:
   file.directory:
     - name: /tools/nginx
@@ -16,9 +19,7 @@ nginx_own:
   file.managed:
     - name: /tools/nginx/{{ file }}
     - mode: 755
-  cmd.run:
-    - names:
-      - ln -s /tools/nginx/{{ file }} /{{ file }}
+    - target: /{{ file }}
     - unless: ls /{{ file }}
 {% elif file == 'conf/nginx.conf' %}
 /tools/nginx/{{ file }}:
