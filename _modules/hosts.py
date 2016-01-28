@@ -2,7 +2,7 @@
 import re
 import commands
 
-def ipconfig():
+def ip():
     cmd = '/sbin/ifconfig eth0|grep "inet addr:"'
     str = commands.getoutput(cmd)
     ip = re.split('[ :]+',str)[3:4]

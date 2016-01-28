@@ -1,7 +1,7 @@
 include:
-    - jetty.install
-    - user.useradd
-    - dirs.init
+  - users.useradd
+  - jetty.install
+  - dirs.init
 
 app_file:
   file.managed:

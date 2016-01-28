@@ -7,7 +7,6 @@ jetty_home:
     - source: salt://jetty/files/jetty
     - user: bestpay
     - group: bestpay
-    - file_mode: 644
     - dir_mode: 755
     - include_empty: True
     - require:
