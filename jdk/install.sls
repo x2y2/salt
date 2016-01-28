@@ -13,6 +13,13 @@ jdk_home:
     - require:
       - user: bestpay
 
+jdk_bin:
+  file.managed:
+      - name: /tools/java/bin/java
+      - mode: 755
+      - require:
+        - file: /tools/java
+
 /home/bestpay/.bash_profile:
   file.append:
     - text:
