@@ -94,7 +94,7 @@ def signal(signal=None):
         arguments = ''
     else:
         arguments = ' -s {0}'.format(signal)
-    cmd = __detect_os() + arguments
+    cmd = 'su - bestpay -c "{0}"'.format(__detect_os() + arguments)
     out = __salt__['cmd.run_all'](cmd)
 
     # A non-zero return code means fail
@@ -107,7 +107,9 @@ def signal(signal=None):
         ret = out['stdout'].strip()
     # No output for something like: nginxctl graceful
     else:
-        ret = 'Command: "{0}" completed successfully!'.format(cmd)
+        #ret = 'Command: "{0}" completed successfully!'.format(cmd)
+        ret = 'Command: "{0}" completed successfully!'.format(__detect_os() + arguments)
+        
     return ret
 
 

@@ -7,7 +7,6 @@ jdk_home:
     - source: salt://jdk/files/java
     - user: bestpay
     - group: bestpay
-    - file_mode: 644
     - dir_mode: 755
     - include_empty: True
     - require:
