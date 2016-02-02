@@ -1,6 +1,7 @@
 include:
     - users.useradd
-/tools:
+
+dir:
   file.directory:
     - user: bestpay
     - group: bestpay
