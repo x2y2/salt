@@ -41,7 +41,7 @@ def upload(appname,version):
     ftp_host = '172.17.192.32'
     ftp_port = 21
     ftp_user = 'night'
-    ftp_password = 'asd!23'
+    ftp_password = 'xxx'
     buffersize = 1024
     ftp = ftplib.FTP()
     ftp.connect(ftp_host,ftp_port)
@@ -99,7 +99,7 @@ def deploy(appname,version):
     ftp_host = '172.17.192.32'
     ftp_port = 21
     ftp_user = 'night'
-    ftp_password = 'asd!23'
+    ftp_password = 'xxx'
     buffersize = 1024
     ftp = ftplib.FTP()
     ftp.connect(ftp_host,ftp_port)
