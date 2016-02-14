@@ -11,13 +11,14 @@ import time
 import shutil
 import json
 import ftplib
+import sys
 from pwd import getpwnam
 
 def __ftp():
     ftp_host = '172.17.192.32'
     ftp_port = 21
     ftp_user = 'night'
-    ftp_password = 'xxx'
+    ftp_password = 'asd!23'
     ftp = ftplib.FTP()
     ftp.connect(ftp_host,ftp_port)
     ftp.login(ftp_user,ftp_password)
@@ -45,9 +46,10 @@ def status(url='http://localhost:8080/checkpreload.html'):
     return ret
 
 
-def upload(appname,version):
-    localpath = '/data/{0}/target'.format(appname)
-    remotepath = '/production/{0}/{1}'.format(appname,version)
+def upload(*args):
+    arg = args[:]
+    localpath = '/data/{0}/target'.format(arg[0],arg[1])
+    remotepath = '/production/{0}/{1}'.format(arg[0],arg[1])
     ftp = __ftp()
     for key in range(1,len(remotepath.split('/'))):
         try:
@@ -57,16 +59,33 @@ def upload(appname,version):
             ftp.cwd(remotepath.split('/')[key])
     
     buffersize = 1024
-    file_handler = open(os.path.join(localpath,appname + '.war'),'rb')
+    file_handler = open(os.path.join(localpath,arg[0] + '.war'),'rb')
     try:
-        ftp.storbinary('STOR ' + appname + '.war',file_handler,buffersize)
+        ftp.storbinary('STOR ' + arg[0] + '.war',file_handler,buffersize)
     except ftplib.error_perm:
         ret = 'permission deny'
-    ret = '{0} upload successfully'.format(appname + '.war')
+    ret = '{0} upload successfully'.format(arg[0] + '.war')
     file_handler.close()
     ftp.quit()
     return ret
 
+def __download(app_path,*args):
+    arg = args[:]
+    ftp_path = '/production/{0}/{1}'.format(arg[0],arg[1])
+    ftp = __ftp()
+    try:
+        ftp.cwd(ftp_path)
+    except Exception,e:
+        return e
+    file_handler = open(arg[0] + '.war','wb')
+    os.chdir(os.path.join(app_path,arg[0]))
+    buffersize = 1024
+    try:
+        ftp.retrbinary('RETR ' + arg[0] + '.war',file_handler.write,buffersize)
+    except Exception,e:
+        return e
+    file_handler.close()
+    ftp.close()
 
 def back(appname):
     curtime = time.strftime('%Y%m%d%H%M',time.localtime())
@@ -89,40 +108,27 @@ def back(appname):
 
     return ret
 
-def deploy(appname,version):
+def deploy(*args):
+    arg = args[:]
     app_path = '/tools/apps'
-    if not appname or not version:
+    if not arg[0] or not arg[1]:
         return '2 argument at least'
-    if not os.path.exists(os.path.join(app_path,appname)):
-        os.makedirs(os.path.join(app_path,appname))
+    if not os.path.exists(os.path.join(app_path,arg[0])):
+        os.makedirs(os.path.join(app_path,arg[0]))
     #clean app
-    os.chdir(os.path.join(app_path,appname))
-    os.system('rm -rf {0}/*'.format(os.path.join(app_path,appname)))
+    os.chdir(os.path.join(app_path,arg[0]))
+    os.system('rm -rf {0}/*'.format(os.path.join(app_path,arg[0])))
     #download .war from ftp
-    ftp_path = '/production/{0}/{1}'.format(appname,version)
-    ftp = __ftp()
-    try:
-        ftp.cwd(ftp_path)
-    except Exception,e:
-        return e
-    file_handler = open(appname + '.war','wb')
-    os.chdir(os.path.join(app_path,appname))
-    buffersize = 1024
-    try:
-        ftp.retrbinary('RETR ' + appname + '.war',file_handler.write,buffersize)
-    except Exception,e:
-        return e
-    file_handler.close()
-    ftp.close()
+    __download(app_path,*args)
     #unpackage war
-    os.chdir(os.path.join(app_path,appname))
+    os.chdir(os.path.join(app_path,arg[0]))
     try:
-        os.system('jar -xf ' + appname + '.war')
-        os.remove(os.path.join(app_path,appname,appname + '.war'))
+        os.system('jar -xf ' + arg[0] + '.war')
+        os.remove(os.path.join(app_path,arg[0],arg[0] + '.war'))
     except:
         return 'unpackage war failed'
-    os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,appname))
-    #file = open(os.path.join(app_path,appname,version.html),'r')
+    os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
+    #file = open(os.path.join(app_path,arg[0],arg[1].html),'r')
     #ver = file.readline()
     #file.close()
     #if ver == version:
