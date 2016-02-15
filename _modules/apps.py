@@ -87,7 +87,7 @@ def __download(app_path,*args):
     file_handler.close()
     ftp.close()
 
-def back(appname):
+def backup(appname):
     curtime = time.strftime('%Y%m%d%H%M',time.localtime())
     appbak_path = '/data/appbak/{0}'.format(curtime)
     app_path = '/tools/apps/{0}'.format(appname)
@@ -110,29 +110,27 @@ def back(appname):
 
 def deploy(*args):
     arg = args[:]
+    if len(arg) < 2:
+        return '2 arguments at least'
     app_path = '/tools/apps'
-    if not arg[0] or not arg[1]:
-        return '2 argument at least'
     if not os.path.exists(os.path.join(app_path,arg[0])):
         os.makedirs(os.path.join(app_path,arg[0]))
     #clean app
     os.chdir(os.path.join(app_path,arg[0]))
     os.system('rm -rf {0}/*'.format(os.path.join(app_path,arg[0])))
+    #return 'aa'
     #download .war from ftp
-    __download(app_path,*args)
-    #unpackage war
-    os.chdir(os.path.join(app_path,arg[0]))
     try:
-        os.system('jar -xf ' + arg[0] + '.war')
-        os.remove(os.path.join(app_path,arg[0],arg[0] + '.war'))
+        __download(app_path,*args)
     except:
-        return 'unpackage war failed'
-    os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
-    #file = open(os.path.join(app_path,arg[0],arg[1].html),'r')
-    #ver = file.readline()
-    #file.close()
-    #if ver == version:
-    return 'deploy successfully'
-    #else:
-    #    return 'deploy failed'
+        return 'download {0} error'.format(arg[0])
+    os.chdir(os.path.join(app_path,arg[0]))
+    os.system('unzip {0}'.format(arg[0] + '.war'))
+    os.system('rm -f {0}'.format(os.path.join(app_path,arg[0],arg[0] + '.war')))
+    try:
+        os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
+        ret = 'deploy {0} successfully'.format(arg[0])
+    except:
+        ret = 'deploy {0} failed'.format(arg[0])
 
+    return ret
