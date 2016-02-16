@@ -1,6 +1,3 @@
-include:
-  - users.useradd
-
 {% for file in ['nginx-1.8.0.tar.gz','openssl-1.0.2d.tar.gz','pcre-8.37.tar.gz','zlib-1.2.8.tar'] %}
 transfer_{{ file }}:
   file.managed:
@@ -10,7 +7,7 @@ transfer_{{ file }}:
 {% endfor %}
 
 {% for file in ['nginx-1.8.0','openssl-1.0.2d','pcre-8.37','zlib-1.2.8'] %}
-{% if file == 'zlib-1.2.8.tar' %}
+{% if file == 'zlib-1.2.8' %}
 uncompress_{{ file }}:
   cmd.run:
     - cwd: /tmp

@@ -12,7 +12,6 @@ import shutil
 import json
 import ftplib
 import sys
-from pwd import getpwnam
 
 def __ftp():
     ftp_host = '172.17.192.32'
@@ -87,24 +86,26 @@ def __download(app_path,*args):
     file_handler.close()
     ftp.close()
 
-def backup(appname):
-    curtime = time.strftime('%Y%m%d%H%M',time.localtime())
-    appbak_path = '/data/appbak/{0}'.format(curtime)
-    app_path = '/tools/apps/{0}'.format(appname)
-    uid = getpwnam('bestpay')[2]
-    gid = getpwnam('bestpay')[3]
+def backup(*args):
+    arg = args[:]
+    if len(arg) < 2:
+        return '2 arguments at least'
+    app_path = '/tools/apps/{0}'.format(arg[0])
+    appbak_path = '/data/appbak/{0}/{1}'.format(arg[0],arg[1])
 
     if not os.path.exists(app_path):
-        return 'appname is not found'
+        return '{0} is not found'.format(arg[0])
+
     if not os.path.exists(appbak_path):
         os.makedirs(appbak_path)
         os.system('chown -R bestpay.bestpay ' + appbak_path.split('/')[1])
+
     try:
-        shutil.copytree(app_path,os.path.join(appbak_path,appname))
-        os.chown(os.path.join(appbak_path,appname),uid,gid)
-        ret = '{0} backup successfully'.format(appname)
+        shutil.copytree(app_path,os.path.join(appbak_path,arg[0]))
+        os.system('chown -R bestpay.bestpay {0}'.format(appbak_path))
+        ret = '{0} backup successfully'.format(arg[0])
     except:
-        ret = '{0} backup failed'.format(appname)
+        ret = '{0} has already backuped'.format(arg[0])
 
     return ret
 
@@ -113,12 +114,12 @@ def deploy(*args):
     if len(arg) < 2:
         return '2 arguments at least'
     app_path = '/tools/apps'
-    if not os.path.exists(os.path.join(app_path,arg[0])):
+    if os.path.exists(os.path.join(app_path,arg[0])):
+        #clean app
+        os.chdir(os.path.join(app_path,arg[0]))
+        os.system('rm -rf {0}/*'.format(os.path.join(app_path,arg[0])))
+    else:
         os.makedirs(os.path.join(app_path,arg[0]))
-    #clean app
-    os.chdir(os.path.join(app_path,arg[0]))
-    os.system('rm -rf {0}/*'.format(os.path.join(app_path,arg[0])))
-    #return 'aa'
     #download .war from ftp
     try:
         __download(app_path,*args)
@@ -142,5 +143,26 @@ def deploy(*args):
         ret = 'deploy {0} successfully'.format(arg[0])
     except:
         ret = 'deploy {0} failed'.format(arg[0])
+
+    return ret
+
+
+def rollback(*args):
+    arg = args[:]
+    if len(arg) < 2:
+        return '2 arguments at least'
+    app_path = '/tools/apps'
+    appbak_path = '/data/appbak/{0}/{1}'.format(arg[0],arg[1])
+    #clean app
+    os.chdir(app_path)
+    os.system('rm -rf {0}'.format(arg[0]))
+    if not os.path.exists(appbak_path):
+        return '{0} is not found'.format(appbak_path)
+    try:
+        shutil.copytree(os.path.join(appbak_path,arg[0]),os.path.join(app_path,arg[0]))
+        os.system('chown -R bestpay.bestpay {0}'.format(os.path.join(app_path,arg[0])))
+        ret = '{0} rollback successfully'.format(arg[0])
+    except:
+        ret = '{0} rollback failed'.format(arg[0])
 
     return ret

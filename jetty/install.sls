@@ -1,6 +1,3 @@
-include:
-  - users.useradd
-
 jetty_home:
   file.recurse:
     - name: /tools/jetty

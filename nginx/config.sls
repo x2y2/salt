@@ -1,6 +1,3 @@
-include:
-  - nginx.install
-
 nginx_own:
   file.directory:
     - name: /tools/nginx

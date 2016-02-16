@@ -1,6 +1,3 @@
-include:
-  - users.useradd
-
 jdk_home:
   file.recurse:
     - name: /tools/java
