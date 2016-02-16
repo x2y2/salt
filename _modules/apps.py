@@ -124,9 +124,19 @@ def deploy(*args):
         __download(app_path,*args)
     except:
         return 'download {0} error'.format(arg[0])
+
     os.chdir(os.path.join(app_path,arg[0]))
-    os.system('unzip {0}'.format(arg[0] + '.war'))
-    os.system('rm -f {0}'.format(os.path.join(app_path,arg[0],arg[0] + '.war')))
+    #unpackage war
+    try:
+        os.system('unzip {0}'.format(arg[0] + '.war'))
+    except:
+        return 'unpackage failed'
+
+    try:
+        os.remove(os.path.join(app_path,arg[0],arg[0] + '.war'))
+    except:
+        return 'remove war failed'
+
     try:
         os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
         ret = 'deploy {0} successfully'.format(arg[0])

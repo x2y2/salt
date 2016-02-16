@@ -7,6 +7,7 @@ import urllib2
 import commands
 import re
 import time
+
 #log = logging.getLogger(__name__)
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
@@ -23,27 +24,6 @@ def __home():
                 if os.path.isdir(jetty_home + '/bin'):
                     return jetty_home
     return False
-
-
-
-'''
-#application health check
-def status(url='http://localhost:8080/index.jsp'):
-    data = {
-        'msg': []
-    }
-
-    try:
-        data['msg'] = urllib2.urlopen(url).read().splitlines()
-        if data['msg'][0].startswith('ok'):
-            ret = 'Jetty is running ok'
-        else:
-            ret = 'Jetty is not running '
-    except:
-        ret = 'Connection Refused'
-    return ret
-'''
-
 
 def signal(signal=None):
     jetty_pid = '{0}/run/jetty.pid'.format(__home())
