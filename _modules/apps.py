@@ -65,7 +65,7 @@ def upload(*args):
         ret = 'permission deny'
     ret = '{0} upload successfully'.format(arg[0] + '.war')
     file_handler.close()
-    ftp.quit()
+    ftp.close()
     return ret
 
 def __download(app_path,*args):
@@ -121,22 +121,28 @@ def deploy(*args):
     else:
         os.makedirs(os.path.join(app_path,arg[0]))
     #download .war from ftp
+    ftp = __ftp()
+    files = ftp.nlst(os.path.join('/production',arg[0],arg[1]))
+    ftp.close()
+    if not files:
+        return '{0} is not exist'.format(os.path.join('ftp://xxx/production',arg[0],arg[1],arg[0]+'.war'))
+
     try:
         __download(app_path,*args)
     except:
         return 'download {0} error'.format(arg[0])
 
-    os.chdir(os.path.join(app_path,arg[0]))
     #unpackage war
+    os.chdir(os.path.join(app_path,arg[0]))
     try:
         os.system('unzip {0}'.format(arg[0] + '.war'))
     except:
-        return 'unpackage failed'
+        return '{0} is not found'.format(os.path.join(app_path,arg[0 + '.war']))
 
     try:
         os.remove(os.path.join(app_path,arg[0],arg[0] + '.war'))
     except:
-        return 'remove war failed'
+        return '{0} is not exist'.format(os.path.join(app_path,arg[0],arg[0] + '.war'))
 
     try:
         os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
