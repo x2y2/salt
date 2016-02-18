@@ -86,6 +86,35 @@ def __download(app_path,*args):
     file_handler.close()
     ftp.close()
 
+def mkpack(url=None,*args):
+    arg = args[:]
+    if len(arg) < 2:
+        return '2 arguments at least'
+    path = '/data/{0}'.format(arg[0])
+    if not os.path.exists(path):
+        try:
+            git clone url
+        except Exception,e:
+            return e
+    else:
+        os.chdir(path)
+        git pull
+    (status,output) = commands.getstatusoutput('git log -1')
+    version = output.split('\n')[0][-4:]
+    if arg[1] != version:
+        return 'version is not match'
+    os.chdir(path)
+    autoconfig_path = '/home/jenkins/autoconfig-release/{0}/product.properties'.format(arg[0])
+    cmd = 'clean install \
+          -Dautoconfig.userProperties={0} \
+          -Dmaven.test.skip=true -U'.format(autoconfig_path)
+    os.system(cmd)
+    if os.path.isfile('/data/{0}/target/{0}.war').format(arg[0]):
+        return 'make package {0} successfully'.format(arg[0] + '.war')
+    else:
+        return 'make package {0} failed'.format(arg[0] + '.war')
+
+
 def backup(*args):
     arg = args[:]
     if len(arg) < 2:
