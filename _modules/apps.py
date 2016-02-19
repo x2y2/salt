@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# wangpei
 from __future__ import absolute_import
 import glob
 import os
@@ -86,26 +87,56 @@ def __download(app_path,*args):
     file_handler.close()
     ftp.close()
 
-def mkpack(url=None,*args):
+
+def pull_code(*args):
+    arg = args[:]
+    if len(arg) < 2:
+        return '2 arguments at least'
+    match = re.search('[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}',arg[0])
+    if match:
+        url = arg[0]
+        path = '/data/{0}'.format(arg[1])
+    else:
+        url = None
+        path = '/data/{0}'.format(arg[0])
+    if not os.path.exists(path) and url is not None:
+        try:
+            os.chdir('/data')
+            os.system('git clone {0}'.format(url))
+        except Exception,e:
+            return e
+    elif os.path.exists(path):
+        os.chdir(path)
+        os.system('git pull')
+        if url is not None:
+            os.system('git checkout {0}'.format(arg[3]))
+        else:
+            os.system('git checkout {0}'.format(arg[2]))
+        os.system('git pull')
+    else:
+        return 'input git address'
+    
+    os.chdir(path)
+    (status,output) = commands.getstatusoutput('git log -1')
+    version = output.split('\n')[0][-4:]
+    if url is None:
+        ver = arg[1]
+    else:
+        ver = arg[2]
+
+    if ver != version:
+        return 'version is not match'
+    else:
+        return 'pull code completed'
+
+def mkpack(*args):
     arg = args[:]
     if len(arg) < 2:
         return '2 arguments at least'
     path = '/data/{0}'.format(arg[0])
-    if not os.path.exists(path):
-        try:
-            git clone url
-        except Exception,e:
-            return e
-    else:
-        os.chdir(path)
-        git pull
-    (status,output) = commands.getstatusoutput('git log -1')
-    version = output.split('\n')[0][-4:]
-    if arg[1] != version:
-        return 'version is not match'
     os.chdir(path)
     autoconfig_path = '/home/jenkins/autoconfig-release/{0}/product.properties'.format(arg[0])
-    cmd = 'clean install \
+    cmd = 'mvn clean install \
           -Dautoconfig.userProperties={0} \
           -Dmaven.test.skip=true -U'.format(autoconfig_path)
     os.system(cmd)
