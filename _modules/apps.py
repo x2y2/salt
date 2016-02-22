@@ -161,7 +161,7 @@ def pull_code(*args):
     return ret
 
 
-def mkpack(*args):
+def make_package(*args):
     ret = []
     arg = args[:]
     if len(arg) < 1:
@@ -179,7 +179,6 @@ def mkpack(*args):
     cmd = 'nohup /tools/maven/bin/mvn clean package \
                 -Dautoconfig.userProperties={0} \
                 -Dmaven.test.skip=true'.format(autoconfig_path)
-    #os.system(cmd)
     (status,output) = commands.getstatusoutput(cmd)
     ret.append(output)
     #files = '/data/{0}/web/target/{0}.war'.format(arg[0])
