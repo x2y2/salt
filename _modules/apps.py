@@ -63,7 +63,7 @@ def upload(*args):
     try:
         ftp.storbinary('STOR ' + arg[0] + '.war',file_handler,buffersize)
     except ftplib.error_perm:
-        ret = 'permission deny'
+        return 'permission deny'
     ret = '{0} upload successfully'.format(arg[0] + '.war')
     file_handler.close()
     ftp.close()
@@ -89,6 +89,7 @@ def __download(app_path,*args):
 
 
 def pull_code(*args):
+    ret = []
     arg = args[:]
     if len(arg) < 2:
         return '2 arguments at least'
@@ -99,51 +100,96 @@ def pull_code(*args):
     else:
         url = None
         path = '/data/{0}'.format(arg[0])
-    if not os.path.exists(path) and url is not None:
-        try:
-            os.chdir('/data')
-            os.system('git clone {0}'.format(url))
-        except Exception,e:
-            return e
-    elif os.path.exists(path):
-        os.chdir(path)
-        os.system('git pull')
-        if url is not None:
-            os.system('git checkout {0}'.format(arg[3]))
+
+    if not os.path.exists(path):
+        if url:
+            os.chdir(path.split('/')[1])
+ 
+            cmd = 'git clone {0}'.format(arg[0])
+            (status,output) = commands.getstatusoutput(cmd)
+            ret.append(output)
+            try:
+                os.chdir(path)
+            except:
+                return '{0} is not exist'.format(path)
+            cmd = 'git checkout {0}'.format(arg[3])
+            (status,output) = commands.getstatusoutput(cmd)
+            ret.append(output)
+
+            cmd = 'git pull'
+            (status,output) = commands.getstatusoutput(cmd)
+            ret.append(output)
         else:
-            os.system('git checkout {0}'.format(arg[2]))
-        os.system('git pull')
+            ret.append('input git address') 
     else:
-        return 'input git address'
-    
-    os.chdir(path)
+        os.chdir(path)
+        cmd = 'git pull'
+        (status,output) = commands.getstatusoutput(cmd)
+        ret.append(output)
+
+        if url:
+            cmd = 'git checkout {0}'.format(arg[3])
+            (status,output) = commands.getstatusoutput(cmd)
+            ret.append(output)
+        else:
+            cmd = 'git checkout {0}'.format(arg[2])
+            (status,output) = commands.getstatusoutput(cmd)
+            ret.append(output)
+        cmd = 'git pull'
+        (status,output) = commands.getstatusoutput(cmd)
+        ret.append(output)
+
+    try: 
+        os.chdir(path)
+    except:
+        ret.append('{0} is not exist'.format(path))
+        return ret
+
     (status,output) = commands.getstatusoutput('git log -1')
     version = output.split('\n')[0][-4:]
-    if url is None:
+
+    if not url:
         ver = arg[1]
     else:
         ver = arg[2]
 
     if ver != version:
-        return 'version is not match'
+        ret.append('{0} is not match {1}'.format(version,ver))
     else:
-        return 'pull code completed'
+        ret.append('pull code completed,version is {0}'.format(version))
+
+    return ret
+
 
 def mkpack(*args):
+    ret = []
     arg = args[:]
-    if len(arg) < 2:
-        return '2 arguments at least'
+    if len(arg) < 1:
+        return '1 arguments at least'
     path = '/data/{0}'.format(arg[0])
+    #update config file
+    autoconfig_path = '/data/autoconfig-release'
+    os.chdir(autoconfig_path)
+    cmd = 'git pull'
+    (status,output) = commands.getstatusoutput(cmd)
+    ret.append(output)
+
     os.chdir(path)
-    autoconfig_path = '/home/jenkins/autoconfig-release/{0}/product.properties'.format(arg[0])
-    cmd = 'mvn clean install \
-          -Dautoconfig.userProperties={0} \
-          -Dmaven.test.skip=true -U'.format(autoconfig_path)
-    os.system(cmd)
-    if os.path.isfile('/data/{0}/target/{0}.war').format(arg[0]):
-        return 'make package {0} successfully'.format(arg[0] + '.war')
-    else:
-        return 'make package {0} failed'.format(arg[0] + '.war')
+    autoconfig_path = '/data/autoconfig-release/{0}/{0}/product.properties'.format(arg[0])
+    cmd = 'nohup /tools/maven/bin/mvn clean package \
+                -Dautoconfig.userProperties={0} \
+                -Dmaven.test.skip=true'.format(autoconfig_path)
+    #os.system(cmd)
+    (status,output) = commands.getstatusoutput(cmd)
+    ret.append(output)
+    #files = '/data/{0}/web/target/{0}.war'.format(arg[0])
+    #if os.path.isfile(files):
+    #    ret.append('make package {0} successfully'.format(arg[0] + '.war'))
+    #else:
+    #    ret.append('make package {0} failed'.format(arg[0] + '.war'))
+
+    return ret
+
 
 
 def backup(*args):
@@ -170,6 +216,7 @@ def backup(*args):
     return ret
 
 def deploy(*args):
+    ret = []
     arg = args[:]
     if len(arg) < 2:
         return '2 arguments at least'
@@ -177,7 +224,9 @@ def deploy(*args):
     if os.path.exists(os.path.join(app_path,arg[0])):
         #clean app
         os.chdir(os.path.join(app_path,arg[0]))
-        os.system('rm -rf {0}/*'.format(os.path.join(app_path,arg[0])))
+        cmd = 'rm -rf {0}/*'.format(os.path.join(app_path,arg[0]))
+        (status,output) = commands.getstatusoutput(cmd)
+        ret.append(output)
     else:
         os.makedirs(os.path.join(app_path,arg[0]))
     #download .war from ftp
@@ -185,7 +234,8 @@ def deploy(*args):
     files = ftp.nlst(os.path.join('/production',arg[0],arg[1]))
     ftp.close()
     if not files:
-        return '{0} is not exist'.format(os.path.join('ftp://xxx/production',arg[0],arg[1],arg[0]+'.war'))
+        ftp_file = os.path.join('ftp://xxx/production',arg[0],arg[1],arg[0]+'.war')
+        return '{0} is not exist'.format(ftp_file)
 
     try:
         __download(app_path,*args)
@@ -194,21 +244,25 @@ def deploy(*args):
 
     #unpackage war
     os.chdir(os.path.join(app_path,arg[0]))
+    cmd = 'unzip {0}'.format(arg[0] + '.war')
     try:
-        os.system('unzip {0}'.format(arg[0] + '.war'))
+        (status,output) = commands.getstatusoutput(cmd)
+        ret.append(output)
     except:
         return '{0} is not found'.format(os.path.join(app_path,arg[0 + '.war']))
-
+ 
+    cmd = os.path.join(app_path,arg[0],arg[0] + '.war')
     try:
-        os.remove(os.path.join(app_path,arg[0],arg[0] + '.war'))
+        os.remove(cmd)
+        ret.append('remove {0}'.format(cmd))
     except:
         return '{0} is not exist'.format(os.path.join(app_path,arg[0],arg[0] + '.war'))
 
     try:
         os.system('chown -R bestpay.bestpay ' + os.path.join(app_path,arg[0]))
-        ret = 'deploy {0} successfully'.format(arg[0])
+        ret.append('deploy {0} successfully'.format(arg[0]))
     except:
-        ret = 'deploy {0} failed'.format(arg[0])
+        ret.append('deploy {0} failed'.format(arg[0]))
 
     return ret
 
