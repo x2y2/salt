@@ -19,7 +19,7 @@ def __operation(signal,name):
     
 def signal(signal,name):
     ret = []
-    valid_signals = ('query','install','update','remove','info','list')
+    valid_signals = ('query','install','update','remove','info','list','search')
     if signal not in valid_signals:
         return
     src_host = '172.17.202.8'
