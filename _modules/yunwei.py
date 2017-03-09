@@ -1,7 +1,7 @@
 # _*_ coding: utf-8 _*_
 """
 Created on 16/3/11
-@author: liusonghui
+@author: wangpei
 """
 from __future__ import absolute_import
 import threading
